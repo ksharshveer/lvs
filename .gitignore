@@ -4,6 +4,9 @@ __pycache__
 # Compiled python modules.
 *.pyc
 
+# build files
+/build/
+
 # Setuptools distribution folder.
 /dist/
 
