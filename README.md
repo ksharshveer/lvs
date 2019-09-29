@@ -244,5 +244,3 @@ Options:
 * Example streaming over a network
   * First type `ipconfig` (only for windows) and find Ipv4 address, it might be something like `192.168.1.23`. Now enter `lvs start` to start the stream server.
   * Go to the computer where you would like to watch the stream. Enter `lvs e_view --server_ip="192.168.1.23"` as we found the address earlier.
-
-Check out the configuration file if something is unclear.
