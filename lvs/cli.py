@@ -144,7 +144,7 @@ def run_http_server(
         logger.error(str(e))
 
 
-@cli.command('e_view', help="Extension to show video stream from a running stream server")
+@cli.command('e_view', help="Extension to show video stream from a running stream server. Press 'q' to quit when running.")
 @click.option('--server_ip', default=server_addr.ip, type=click.STRING, show_default=True)
 @click.option('--server_port', default=server_addr.port, type=click.INT, show_default=True)
 @click.option('-G', '--grayscale/--no-grayscale', default=stream_s.grayscale, show_default=True)
