@@ -1,5 +1,6 @@
 __all__ = ['ServerAddress', 'ServerSettings', 'FlaskSettings',
            'PreStreamDataByServer', 'PreStreamDataByClient',
+           'StreamData', 'ClientExtras',
            'StreamSettings', 'SaveSettings', 'VideoSpecs']
 
 import dataclasses as dc

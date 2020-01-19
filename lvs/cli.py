@@ -15,7 +15,7 @@ from lvs.save_ext import save_stream, SAVE_TYPES
 logger = logging.getLogger('lvs')
 logger.info("\nlvs started!")
 
-cfg_file = "res/config.toml"
+cfg_file = "lvs/res/config.toml"
 cfg_file_full_path = str(pl.Path(__file__).parent.joinpath(cfg_file))
 logger.info(f"Configuration file at '{str(cfg_file_full_path)}'")
 

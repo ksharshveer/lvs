@@ -82,6 +82,7 @@ class FpsEstimator:
 
 
 class VideoIterABC(abc.ABC):
+    """Abstract Base class for iterating a video frame by frame"""
 
     def __init__(self):
         self.fps_estimator = FpsEstimator()
@@ -216,7 +217,7 @@ def apply_stream_settings(frame: np.ndarray, stream_settings: do.StreamSettings,
 
     pos = ((int)(0.01 * img.shape[0]), (int)(0.05 * img.shape[1]))
     if stream_settings.show_datetime:
-        text = str(datetime.datetime.now()).split('.')[0]
+        text = str(datetime.datetime.now()).replace('-', '/').split('.')[0]
         cv.putText(img, text, pos, cv.FONT_HERSHEY_SIMPLEX, fs, clr, thic, cv.LINE_AA)
         pos = (int(0.01 * img.shape[0]), int(pos[1] + (0.05 * img.shape[1])))
 
