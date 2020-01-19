@@ -11,10 +11,10 @@ import threading as th
 import time
 import logging
 
+from . import video_streamer as vs
+
 from flask import Flask, Response, render_template
 
-from lvs.video_streamer import dataclass_objects as do
-from lvs.video_streamer import video_streamer as vs
 
 # seconds to wait before flask app goes to sleep,
 # after all clients are disconnected
@@ -24,11 +24,11 @@ SLEEP_DELAY: int = 10
 # 0.04 means serve 1 frame every 0.04 second or 25 frames per second
 # if this is set to serve more fps than can be updated on `shared_frame`,
 # duplicate frames will be served
-FRAMES_DELAY: float = 0.04
+FRAMES_DELAY: float = 0.1
 
 logger = logging.getLogger(__name__)
 
-_flask_settings: do.FlaskSettings
+_flask_settings: vs.FlaskSettings
 
 app = Flask(__name__)
 
@@ -120,7 +120,7 @@ def video_stream():
 def _run_flask(server_address, stream_settings):
 
     global svi
-    svi = vs.SlaveVideoIter(server_address, do.PreStreamDataByClient(stream_settings))
+    svi = vs.SlaveVideoIter(server_address, vs.PreStreamDataByClient(stream_settings))
 
     global _flask_settings
     shared_frame_updater_th = th.Thread(
@@ -134,9 +134,9 @@ def _run_flask(server_address, stream_settings):
 
 
 def run_flask(
-        server_address: do.ServerAddress,
-        stream_settings: do.StreamSettings,
-        flask_settings: do.FlaskSettings
+        server_address: vs.ServerAddress,
+        stream_settings: vs.StreamSettings,
+        flask_settings: vs.FlaskSettings
         ):
     logger.debug(f"Parameters received for `run_flask`:\n"
                  f"{server_address}\n{stream_settings}\n{flask_settings}")

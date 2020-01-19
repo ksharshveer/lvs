@@ -4,10 +4,10 @@ Extension to show video stream from a running stream server
 
 import logging
 
+from . import video_streamer as vs
+
 import cv2 as cv
 
-from lvs.video_streamer import dataclass_objects as do
-from lvs.video_streamer import video_streamer as vs
 
 QUIT_KEYS = (ord('q'), ord('Q'))
 
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 def _run_client(server_address, stream_settings):
     vid_iter = vs.SlaveVideoIter(
         server_address,
-        do.PreStreamDataByClient(stream_settings)
+        vs.PreStreamDataByClient(stream_settings)
     )
 
     if not vid_iter.is_working():
@@ -39,8 +39,8 @@ def _run_client(server_address, stream_settings):
 
 
 def run_client(
-        server_address: do.ServerAddress,
-        stream_settings: do.StreamSettings
+        server_address: vs.ServerAddress,
+        stream_settings: vs.StreamSettings
         ):
     logger.debug("Parameters received for `run_client`:\n"
                  f"{server_address}\n{stream_settings}")

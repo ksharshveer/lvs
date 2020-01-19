@@ -13,10 +13,10 @@ import queue as q
 import threading as th
 from typing import List
 
+from . import video_streamer as vs
+
 import cv2 as cv
 
-from .video_streamer import dataclass_objects as do
-from .video_streamer import video_streamer as vs, socket_utils as su
 
 logger = logging.getLogger(__name__)
 
@@ -28,15 +28,15 @@ FRAMES_BUFFER_SIZE = 3
 ENC = '.jpg'
 
 # Socket the server will run on and listen for client requests
-_socket: socket.socket = su.get_ipv4_tcp_socket()
+_socket: socket.socket = vs.get_ipv4_tcp_socket()
 
-_connected_clients: List[do.ClientExtras] = []
+_connected_clients: List[vs.ClientExtras] = []
 
 # Helpful `VideoIter` to easily get `do.StreamData` data
 # from the camera or video source
 _vid_iter: vs.MasterVideoIter
 
-_server_settings: do.ServerSettings
+_server_settings: vs.ServerSettings
 
 
 async def _frames_q_updater():
@@ -100,7 +100,7 @@ async def _frames_q_updater():
 
                     # Ready stream data for network transmission
                     _, compressed_frame = cv.imencode(ENC, custom_frame)
-                    custom_stream_data = do.StreamData(compressed_frame)
+                    custom_stream_data = vs.StreamData(compressed_frame)
                     ce.stream_data_q.put_nowait(custom_stream_data)
 
         except StopIteration:
@@ -150,7 +150,7 @@ async def _serve_clients():
             try:
                 await aio.sleep(0)
                 if not ce.stream_data_q.empty():
-                    su.send_data(ce.sock, ce.stream_data_q.get_nowait())
+                    vs.send_data(ce.sock, ce.stream_data_q.get_nowait())
             except (ConnectionResetError, ConnectionAbortedError, ConnectionError) as e:
                 logger.error(str(e))
                 if ce.sock.fileno() != -1:
@@ -167,10 +167,10 @@ def _accept_connections():
         client, addr = _socket.accept()
         logger.info(f"New client connected: {addr[0]+':'+str(addr[1])}")
         try:
-            client_data: do.PreStreamDataByClient = su.recv_data(client)
-            su.send_data(client, do.PreStreamDataByServer(_vid_iter.vid_specs))
+            client_data: vs.PreStreamDataByClient = vs.recv_data(client)
+            vs.send_data(client, vs.PreStreamDataByServer(_vid_iter.vid_specs))
             _connected_clients.append(
-                do.ClientExtras(
+                vs.ClientExtras(
                     client, addr, q.Queue(FRAMES_BUFFER_SIZE),
                     client_data.stream_settings
                     )
@@ -209,7 +209,7 @@ async def _run_server():
     await aio.gather(frames_q_updater_t, serve_clients_t)
 
 
-def run_server(server_settings: do.ServerSettings):
+def run_server(server_settings: vs.ServerSettings):
     logger.debug(f"Parameters received for `run_server`:\n{server_settings}")
     global _server_settings
 

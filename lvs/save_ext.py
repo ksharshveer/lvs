@@ -11,10 +11,10 @@ import pathlib as pl
 import threading as th
 from typing import List
 
+from . import video_streamer as vs
+
 import cv2 as cv
 
-from lvs.video_streamer import dataclass_objects as do
-from lvs.video_streamer import video_streamer as vs
 
 # opencv seems to have issues in saving if not using .avi extension
 VID_EXT = '.avi'
@@ -117,7 +117,7 @@ def _save_stream(server_address, stream_settings, save_settings):
     if save_settings.sweep_interval > 0:
         _run_sweep_thread(save_settings.sweep_interval, save_settings.older_than, save_dir)
 
-    vid_iter = vs.SlaveVideoIter(server_address, do.PreStreamDataByClient(stream_settings))
+    vid_iter = vs.SlaveVideoIter(server_address, vs.PreStreamDataByClient(stream_settings))
 
     fourcc = cv.VideoWriter_fourcc(*FOURCC_FORMAT)
     while True:
@@ -140,7 +140,7 @@ def _save_stream(server_address, stream_settings, save_settings):
                         continue
 
             img = cv.imdecode(data.frame, cv.IMREAD_UNCHANGED)
-            vid_specs: do.VideoSpecs = vid_iter.pre_stream_server_data.source_video_specs
+            vid_specs: vs.VideoSpecs = vid_iter.pre_stream_server_data.source_video_specs
             fps = int(vid_specs.fps)
 
         except (StopIteration, AttributeError):
@@ -172,9 +172,9 @@ def _save_stream(server_address, stream_settings, save_settings):
 
 
 def save_stream(
-        server_address: do.ServerAddress,
-        stream_settings: do.StreamSettings,
-        save_settings: do.SaveSettings
+        server_address: vs.ServerAddress,
+        stream_settings: vs.StreamSettings,
+        save_settings: vs.SaveSettings
         ):
     logger.debug("Parameters received for `save_stream`:\n"
                  f"{server_address}\n{stream_settings}\n{save_settings}")

@@ -5,17 +5,17 @@ import toml
 import logging
 import sys
 
-from lvs.video_streamer import dataclass_objects as do
-from lvs.video_streamer import video_streamer as vs
-from lvs.stream_server import run_server
-from lvs.view_ext import run_client
-from lvs.http_ext import run_flask
-from lvs.save_ext import save_stream, SAVE_TYPES
+from . import video_streamer as vs
+
+from .stream_server import run_server
+from .view_ext import run_client
+from .http_ext import run_flask
+from .save_ext import save_stream, SAVE_TYPES
 
 logger = logging.getLogger('lvs')
 logger.info("\nlvs started!")
 
-cfg_file = "lvs/res/config.toml"
+cfg_file = "res/config.toml"
 cfg_file_full_path = str(pl.Path(__file__).parent.joinpath(cfg_file))
 logger.info(f"Configuration file at '{str(cfg_file_full_path)}'")
 
@@ -79,11 +79,11 @@ except Exception as e:
 
 try:
     configure_logging(config['log_level'], config['log_to_file'])
-    server_addr = do.ServerAddress(**config['server_address'])
-    server_s = do.ServerSettings(**config['server_settings'])
-    stream_s = do.StreamSettings(**config['stream_settings'])
-    flask_s = do.FlaskSettings(**config['flask_settings'])
-    save_s = do.SaveSettings(**config['save_settings'])
+    server_addr = vs.ServerAddress(**config['server_address'])
+    server_s = vs.ServerSettings(**config['server_settings'])
+    stream_s = vs.StreamSettings(**config['stream_settings'])
+    flask_s = vs.FlaskSettings(**config['flask_settings'])
+    save_s = vs.SaveSettings(**config['save_settings'])
 except Exception as e:
     logger.error("Exiting! Configuration file contains invalid settings!\n"+str(e))
     sys.exit(1)
@@ -95,7 +95,7 @@ except Exception as e:
 @click.option('--port', default=server_s.port, type=click.INT, show_default=True)
 @click.option('--backlog', default=server_s.backlog, type=click.INT, show_default=True)
 def run_stream_server(source, ip, port, backlog):
-    new_server_s = do.ServerSettings(source, ip, port, backlog)
+    new_server_s = vs.ServerSettings(source, ip, port, backlog)
 
     # conversion required because an integer is expected if using a camera as source
     try:
@@ -131,12 +131,12 @@ def run_http_server(
         grayscale, show_datetime, show_fps,
         text_color, font_scale, thickness,
         ):
-    new_server_addr = do.ServerAddress(server_ip, server_port)
-    new_stream_s = do.StreamSettings(
+    new_server_addr = vs.ServerAddress(server_ip, server_port)
+    new_stream_s = vs.StreamSettings(
         grayscale, show_datetime, show_fps,
         text_color, font_scale, thickness,
     )
-    new_flask_s = do.FlaskSettings(ip, port, sleep_delay, background_color, debug)
+    new_flask_s = vs.FlaskSettings(ip, port, sleep_delay, background_color, debug)
 
     try:
         run_flask(new_server_addr, new_stream_s, new_flask_s)
@@ -158,8 +158,8 @@ def run_stream_client(
         grayscale, show_datetime, show_fps,
         text_color, font_scale, thickness,
         ):
-    new_server_addr = do.ServerAddress(server_ip, server_port)
-    new_stream_s = do.StreamSettings(
+    new_server_addr = vs.ServerAddress(server_ip, server_port)
+    new_stream_s = vs.StreamSettings(
         grayscale, show_datetime, show_fps,
         text_color, font_scale, thickness,
     )
@@ -195,12 +195,12 @@ def save_video_stream(
         dir_name, save_dir, save_type, save_duration,
         older_than, sweep_interval,
         ):
-    new_server_addr = do.ServerAddress(server_ip, server_port)
-    new_stream_s = do.StreamSettings(
+    new_server_addr = vs.ServerAddress(server_ip, server_port)
+    new_stream_s = vs.StreamSettings(
         grayscale, show_datetime, show_fps,
         text_color, font_scale, thickness,
     )
-    new_save_s = do.SaveSettings(
+    new_save_s = vs.SaveSettings(
         cascade_classifier, detection_interval,
         dir_name, save_dir, save_type, save_duration,
         older_than, sweep_interval,
@@ -210,7 +210,3 @@ def save_video_stream(
         save_stream(new_server_addr, new_stream_s, new_save_s)
     except vs.VSError as e:
         logger.error(str(e))
-
-
-if __name__ == '__main__':
-    cli()
